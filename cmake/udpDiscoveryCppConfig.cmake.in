@@ -1,7 +1,7 @@
 
 @PACKAGE_INIT@
 
-if(NOT TARGET updDiscoveryCpp)
-    include("${CMAKE_CURRENT_LIST_DIR}/updDiscoveryCppTargets.cmake")
-    get_target_property(updDiscoveryCpp_INCLUDE_DIR updDiscoveryCpp INTERFACE_INCLUDE_DIRECTORIES)
+if(NOT TARGET udpDiscoveryCpp)
+    include("${CMAKE_CURRENT_LIST_DIR}/udpDiscoveryCppTargets.cmake")
+    get_target_property(udpDiscoveryCpp_INCLUDE_DIR udpDiscoveryCpp INTERFACE_INCLUDE_DIRECTORIES)
 endif()

@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.4)
 
+project(udpDiscoveryCpp)
+
 if(APPLE)
 	set(platform "osx")
 elseif(UNIX AND NOT APPLE)
@@ -11,15 +13,20 @@ endif()
 set(LIB_SOURCES
 	endpoint.cpp
 	ip_port.cpp
-	protocol.cpp)
+	protocol.cpp
+)
+
 set(LIB_HEADERS
 	endpoint.hpp
 	ip_port.hpp
-	protocol.hpp)
+	protocol.hpp
+	discovered_endpoint.hpp
+	endpoint_parameters.hpp
+)
 
-add_library(udp-discovery STATIC ${LIB_SOURCES} ${LIB_HEADERS})
+add_library(${PROJECT_NAME} STATIC ${LIB_SOURCES} ${LIB_HEADERS})
 
-target_include_directories(udp-discovery INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+target_include_directories(${PROJECT_NAME} INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                                                    $<INSTALL_INTERFACE:include>)
 
 if(APPLE)
@@ -40,34 +47,27 @@ option(BUILD_TOOL "build the disocvery tool" ON)
 
 if(BUILD_EXAMPLE)
 	set(DISCOVERY_EXAMPLE_SOURCES discovery_example.cpp)
-	set(DISCOVERY_EXAMPLE_LIBS udp-discovery)
+	set(DISCOVERY_EXAMPLE_LIBS ${PROJECT_NAME})
 	if(WIN32)
 		set(DISCOVERY_EXAMPLE_LIBS ${DISCOVERY_EXAMPLE_LIBS} Ws2_32)
 	endif(WIN32)
-	add_executable(udp-discovery-example ${DISCOVERY_EXAMPLE_SOURCES})
-	target_link_libraries(udp-discovery-example ${DISCOVERY_EXAMPLE_LIBS})
+	add_executable(${PROJECT_NAME}-example ${DISCOVERY_EXAMPLE_SOURCES})
+	target_link_libraries(${PROJECT_NAME}-example ${DISCOVERY_EXAMPLE_LIBS})
 endif()
 
 if(BUILD_TOOL)
 	set(DISCOVERY_TOOL_SOURCES discovery_tool.cpp)
-	set(DISCOVERY_TOOL_LIBS udp-discovery)
-	add_executable(udp-discovery-tool ${DISCOVERY_TOOL_SOURCES})
-	target_link_libraries(udp-discovery-tool ${DISCOVERY_TOOL_LIBS})
+	set(DISCOVERY_TOOL_LIBS ${PROJECT_NAME})
+	add_executable(${PROJECT_NAME}-tool ${DISCOVERY_TOOL_SOURCES})
+	target_link_libraries(${PROJECT_NAME}-tool ${DISCOVERY_TOOL_LIBS})
 endif()
 
+set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "d")
 
 install(
-    TARGETS udp-discovery
-    EXPORT udp-discovery-targets
-    CONFIGURATIONS Debug
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/${platform}/Debug"
-)
-
-install(
-    TARGETS udp-discovery
-    EXPORT udp-discovery-targets
-    CONFIGURATIONS Release
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/${platform}/Release"
+    TARGETS ${PROJECT_NAME}
+    EXPORT ${PROJECT_NAME}targets
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/${platform}"
 )
 
 install(
@@ -86,5 +86,5 @@ install(
 )
 
 install(
-  EXPORT udp-discovery-targets DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake
+  EXPORT ${PROJECT_NAME}targets DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake
 )
